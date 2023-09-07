@@ -1,99 +1,192 @@
-const enviar = document.querySelector('#enviar');
+let listaMotos = [];
+
+const motoObjeto = {
+    id: "",
+    nombre: "",
+    marca: "",
+    cilindraje: "",
+    placa: "",
+    consumo: "",
+    soat: "",
+    descripcion: "",
+    imagenUrl: "",
+};
+
+let editando = false;
+
+const formulario = document.querySelector('#nueva-moto');
+const nombre = document.querySelector('#nombre');
+const marca = document.querySelector('#marca');
+const cilindraje = document.querySelector('#cilindraje');
+const placa = document.querySelector('#placa');
+const consumo = document.querySelector('#consumo');
+const soat = document.querySelector('#soat');
+const descripcion = document.querySelector('#descripcion');
 const foto = document.querySelector('#foto');
-const contenedorMotos = document.querySelector('#motos');
-const motosArreglo = [];
+const motos = document.querySelector('#motos');
 
-enviar.addEventListener('click', (e) => {
+formulario.addEventListener('submit', validarFormulario);
+
+function validarFormulario(e) {
     e.preventDefault();
-    //img-----------------------------------------------
-    const imagen = foto.files[0];
-    const imagenUrl = URL.createObjectURL(imagen);
-    const divImg = document.createElement('div');
-    divImg.className = 'divImg';
-    divImg.id = 'divImg';
-    const img = document.createElement('img');
-    img.className = 'img';
-    img.id = 'img';
-    img.src = imagenUrl;
-    img.width = 200;
-    divImg.appendChild(img);
+    if (nombre.value === "" || marca.value === "" || cilindraje.value === "" || placa.value === "" || consumo.value === "" || soat.value === "" || descripcion.value === "") {
+        alert('todos los campos son obligatorios');
+        return;
+    }
 
-    //nombre-----------------------------------------------------------
-    const nombre = document.querySelector('#nombre').value;
-    const divNombre = document.createElement('div');
-    divNombre.classList.add('nombreMoto');
-    divNombre.innerHTML = `<h5>Nombre: ${nombre}</h5>`;
-    //marca----------------------------------------------------------------------
-    const marca = document.querySelector('#marca').value;
-    const divMarca = document.createElement('div');
-    divMarca.classList.add('nombreMoto');
-    divMarca.innerHTML = `<h5>Marca: ${marca}</h5>`;
-    //cilindraje-----------------------------------------------------------------------
+    if (editando) {
+        editarMoto();
+        editando = false;
+    } else {
+        motoObjeto.id = Date.now();
+        motoObjeto.nombre = nombre.value;
+        motoObjeto.marca = marca.value;
+        motoObjeto.cilindraje = cilindraje.value;
+        motoObjeto.placa = placa.value;
+        motoObjeto.consumo = consumo.value;
+        motoObjeto.soat = soat.value;
+        motoObjeto.descripcion = descripcion.value;
 
-    const cilindraje = document.querySelector('#cilindraje').value;
-    const divCilindraje = document.createElement('div');
-    divCilindraje.classList.add('nombreMoto');
-    divCilindraje.innerHTML = `<h5>Cilindraje: ${cilindraje}</h5>`;
-    //placa-----------------------------------------------------------------
-    const placa = document.querySelector('#placa').value;
-    const divPlaca = document.createElement('div');
-    divPlaca.classList.add('nombreMoto');
-    divPlaca.innerHTML = `<h5>Placa: ${placa}</h5>`;
-    //consumo------------------------------------------------------
-    const consumo = document.querySelector('#consumo').value;
-    const divConsumo = document.createElement('div');
-    divConsumo.classList.add('nombreMoto');
-    divConsumo.innerHTML = `<h5>Consumo: ${consumo}</h5>`;
-    //soat-----------------------------------------------------------
-    const soat = document.querySelector('#soat').value;
-    const divSoat = document.createElement('div');
-    divSoat.classList.add('nombreMoto');
-    divSoat.innerHTML = `<h5>SOAT: ${soat}</h5>`;
-    //descripcion-----------------------------------------------------------------
-    const descripcion = document.querySelector('#descripcion').value;
-    const divDescripcion = document.createElement('div');
-    divDescripcion.classList.add('nombreMoto');
-    divDescripcion.innerHTML = `<h5>Descripción: ${descripcion}</h5>`;
+        cargarImagenSeleccionada();
 
-    const botonBorrar = document.createElement('button');
-    botonBorrar.textContent = 'Borrar';
-    botonBorrar.classList.add('botonBorrado');
-    botonBorrar.addEventListener('click', () => {
+        agregarMoto();
+    }
+}
 
-        const index = motosArreglo.findIndex(moto => moto.nombre === nombre);
-        if (index !== -1) {
+function agregarMoto() {
+    listaMotos.push({...motoObjeto });
+    mostrarMotos();
+    formulario.reset();
+    limpiarObjeto();
+}
 
-            motosArreglo.splice(index, 1);
+function limpiarObjeto() {
+    motoObjeto.id = '';
+    motoObjeto.nombre = '';
+    motoObjeto.marca = '';
+    motoObjeto.cilindraje = '';
+    motoObjeto.placa = '';
+    motoObjeto.consumo = '';
+    motoObjeto.soat = '';
+    motoObjeto.descripcion = '';
+    motoObjeto.imagenUrl = '';
+}
 
-            contenedorMotos.removeChild(divImg);
-            contenedorMotos.removeChild(divNombre);
-            contenedorMotos.removeChild(divMarca);
-            contenedorMotos.removeChild(divCilindraje);
-            contenedorMotos.removeChild(divPlaca);
-            contenedorMotos.removeChild(divConsumo);
-            contenedorMotos.removeChild(divSoat);
-            contenedorMotos.removeChild(divDescripcion);
-            contenedorMotos.removeChild(botonBorrar);
+
+
+function mostrarMotos() {
+    limpiarHtml();
+    const divMotos = document.querySelector('#motos');
+    listaMotos.forEach(z => {
+        const { id, nombre, marca, cilindraje, placa, consumo, soat, descripcion, imagenUrl } = z;
+        const div = document.createElement('div');
+        div.classList.add('moto-contenedor')
+
+        if (imagenUrl) {
+            const img = document.createElement('img');
+            img.src = imagenUrl;
+            img.width = 100;
+            div.appendChild(img);
+        }
+
+        div.innerHTML += `
+            <h6>Nombre: ${nombre}</h6>
+            <h6>Marca: ${marca}</h6>
+            <h6>Cilindraje: ${cilindraje}</h6>
+            <h6>Placa: ${placa}</h6>
+            <h6>Consumo: ${consumo}</h6>
+            <h6>Soat: ${soat}</h6>
+            <h6>Descripcion: ${descripcion}</h6>
+        `;
+
+        div.dataset.id = id;
+        const editarBoton = document.createElement('button');
+        editarBoton.classList.add('botonEdit')
+        editarBoton.onclick = () => cargarMoto(z);
+        editarBoton.textContent = 'editar'
+        div.appendChild(editarBoton);
+
+        const eliminarBoton = document.createElement('button');
+        eliminarBoton.classList.add('botonBorr')
+        eliminarBoton.onclick = () => eliminarMoto(z.id);
+        eliminarBoton.textContent = 'eliminar';
+        div.appendChild(eliminarBoton);
+
+        const hr = document.createElement('hr');
+        divMotos.appendChild(div);
+        divMotos.appendChild(hr);
+    })
+}
+
+
+
+
+
+function cargarMoto(s) {
+    const { id, nombre, marca, cilindraje, placa, consumo, soat, descripcion, imagenUrl } = s;
+    document.querySelector('#nombre').value = nombre;
+    document.querySelector('#marca').value = marca;
+    document.querySelector('#cilindraje').value = cilindraje;
+    document.querySelector('#placa').value = placa;
+    document.querySelector('#consumo').value = consumo;
+    document.querySelector('#soat').value = soat;
+    document.querySelector('#descripcion').value = descripcion;
+
+    motoObjeto.id = id;
+    motoObjeto.imagenUrl = imagenUrl;
+
+    formulario.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
+    editando = true;
+}
+
+function editarMoto() {
+    motoObjeto.nombre = nombre.value;
+    motoObjeto.marca = marca.value;
+    motoObjeto.cilindraje = cilindraje.value;
+    motoObjeto.placa = placa.value;
+    motoObjeto.consumo = consumo.value;
+    motoObjeto.soat = soat.value;
+    motoObjeto.descripcion = descripcion.value;
+
+    listaMotos.map(e => {
+        if (e.id === motoObjeto.id) {
+            e.id = motoObjeto.id;
+            e.nombre = motoObjeto.nombre;
+            e.marca = motoObjeto.marca;
+            e.cilindraje = motoObjeto.cilindraje;
+            e.placa = motoObjeto.placa;
+            e.consumo = motoObjeto.consumo;
+            e.soat = motoObjeto.soat;
+            e.descripcion = motoObjeto.descripcion;
+            e.imagenUrl = motoObjeto.imagenUrl;
         }
     });
 
-    const motoArreglo = {
-        nombre,
-        marca,
-        cilindraje,
-        placa,
-        consumo,
-        soat,
-        descripcion
-    };
-    motosArreglo.push(motoArreglo);
-    contenedorMotos.appendChild(divImg);
-    contenedorMotos.appendChild(divNombre);
-    contenedorMotos.appendChild(divMarca);
-    contenedorMotos.appendChild(divCilindraje);
-    contenedorMotos.appendChild(divPlaca);
-    contenedorMotos.appendChild(divConsumo);
-    contenedorMotos.appendChild(divSoat);
-    contenedorMotos.appendChild(divDescripcion);
-    contenedorMotos.appendChild(botonBorrar);
-});
+    limpiarHtml();
+    mostrarMotos();
+    formulario.reset();
+    formulario.querySelector('button[type="submit"]').textContent = 'Agregar';
+    editando = false;
+}
+
+function eliminarMoto(id) {
+    listaMotos = listaMotos.filter(moto => moto.id !== id);
+    limpiarHtml();
+    mostrarMotos();
+}
+
+function limpiarHtml() {
+    const divMotos = document.querySelector('#motos');
+    while (divMotos.firstChild) {
+        divMotos.removeChild(divMotos.firstChild);
+    }
+}
+
+function cargarImagenSeleccionada() {
+    const imagen = foto.files[0];
+    if (imagen) {
+        const imagenUrl = URL.createObjectURL(imagen);
+        motoObjeto.imagenUrl = imagenUrl;
+
+    }
+}
