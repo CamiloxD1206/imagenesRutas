@@ -24,6 +24,10 @@ const soat = document.querySelector('#soat');
 const descripcion = document.querySelector('#descripcion');
 const foto = document.querySelector('#foto');
 const motos = document.querySelector('#motos');
+if (localStorage.getItem('motos')) {
+    listaMotos = JSON.parse(localStorage.getItem('motos'));
+    mostrarMotos();
+}
 
 formulario.addEventListener('submit', validarFormulario);
 
@@ -51,6 +55,7 @@ function validarFormulario(e) {
 
         agregarMoto();
     }
+    localStorage.setItem('motos', JSON.stringify(listaMotos));
 }
 
 function agregarMoto() {
@@ -167,12 +172,14 @@ function editarMoto() {
     formulario.reset();
     formulario.querySelector('button[type="submit"]').textContent = 'Agregar';
     editando = false;
+    localStorage.setItem('motos', JSON.stringify(listaMotos));
 }
 
 function eliminarMoto(id) {
     listaMotos = listaMotos.filter(moto => moto.id !== id);
     limpiarHtml();
     mostrarMotos();
+    localStorage.setItem('motos', JSON.stringify(listaMotos));
 }
 
 function limpiarHtml() {
